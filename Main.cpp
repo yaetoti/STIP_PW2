@@ -92,13 +92,11 @@ struct LoginInput {
 };
 
 struct LoginResult {
-    std::wstring username;
-    std::wstring password;
-    std::wstring handshake;
+    User* user;
     LoginStatus result;
 
-    LoginResult(const std::wstring& username, const std::wstring& password, const std::wstring& handshake, LoginStatus result)
-    : username(username), password(password), handshake(handshake), result(result) { }
+    LoginResult(User* user, LoginStatus result)
+    : user(user), result(result) { }
 };
 
 constexpr const wchar_t* databaseFile = L"users.dat";
@@ -130,6 +128,45 @@ bool IsPasswordValid(const std::wstring& password) {
     return hasLatin && hasCyrillic && hasNumbers;
 }
 
+LRESULT CALLBACK RepeatProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (message) {
+    case WM_INITDIALOG:
+        // Save input data
+        SetWindowLongPtrW(hwnd, GWLP_USERDATA, lParam);
+        break;
+    case WM_CLOSE:
+        EndDialog(hwnd, false);
+        break;
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK && HIWORD(wParam) == BN_CLICKED) {
+            // Get input and check matching
+            const std::wstring* original = (const std::wstring*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+            HWND hPassword = GetDlgItem(hwnd, IDC_EDIT_REPEAT);
+            int passwordLength = GetWindowTextLengthW(hPassword);
+            if (passwordLength != original->length()) {
+                MessageBoxW(hwnd, L"Passwords don't match!", L"Warning", MB_OK | MB_ICONERROR);
+                break;
+            }
+
+            std::wstring password;
+            password.resize(passwordLength);
+            GetDlgItemTextW(hwnd, IDC_EDIT_REPEAT, &password[0], passwordLength + 1);
+            if (password != *original) {
+                MessageBoxW(hwnd, L"Passwords don't match!", L"Warning", MB_OK | MB_ICONERROR);
+                break;
+            }
+
+            EndDialog(hwnd, true);
+        }
+
+        break;
+    default:
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_INITDIALOG:
@@ -144,7 +181,7 @@ LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         break;
     }
     case WM_CLOSE:
-        EndDialog(hwnd, 0);
+        EndDialog(hwnd, (INT_PTR)new LoginResult(nullptr, LoginStatus::CANCEL));
         break;
     case WM_COMMAND:
         if (LOWORD(wParam) == IDOK && HIWORD(wParam) == BN_CLICKED) {
@@ -178,7 +215,7 @@ LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             }
 
             if (user == nullptr) {
-                MessageBoxW(hwnd, L"User with such name doesn't exist", L"Warning", MB_OK | MB_ICONERROR);
+                MessageBoxW(hwnd, L"User with such name doesn't exist!", L"Warning", MB_OK | MB_ICONERROR);
                 break;
             }
 
@@ -186,19 +223,25 @@ LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (user->password.empty()) {
                 // Validate if set restriction
                 if (user->isRestrictionEnabled && !IsPasswordValid(password)) {
-                    MessageBoxW(hwnd, L"Password must contain latin, cyrillic characters and numbers", L"Warning", MB_OK | MB_ICONERROR);
+                    MessageBoxW(hwnd, L"Password must contain latin, cyrillic characters and numbers!", L"Warning", MB_OK | MB_ICONERROR);
                     break;
                 }
 
                 // Ask to repeat password
+                bool match = DialogBoxParamW(GetModuleHandleW(nullptr), MAKEINTRESOURCE(IDD_DIALOG_REPEAT), hwnd, RepeatProc, (LPARAM)&password);
+                if (!match) {
+                    break;
+                }
 
+                // Match - change pass and return
+                user->password = password;
+                EndDialog(hwnd, (INT_PTR)new LoginResult(user, LoginStatus::UPDATE));
+                break;
             }
 
-
-
-            // Save data and return it
-            EndDialog(hwnd, (INT_PTR)new LoginResult(username, password, handshake, LoginStatus::LOGIN));
+            EndDialog(hwnd, (INT_PTR)new LoginResult(nullptr, LoginStatus::CANCEL));
         }
+
         break;
     default:
         return FALSE;
@@ -225,14 +268,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         database.users[0].username.c_str(), database.users[0].password.c_str(), database.users[0].isBlocked ? 1 : 0, database.users[0].isRestrictionEnabled ? 1 : 0);
 
     LoginInput loginParams = { database, rand() % 1000 };
-    struct LoginResult* result = (struct LoginResult*)DialogBoxParamW(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), nullptr, LoginProc, (LPARAM)&loginParams);
-    if (result == nullptr) {
+    LoginResult* result = (LoginResult*)DialogBoxParamW(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), nullptr, LoginProc, (LPARAM)&loginParams);
+    if (result->result == LoginStatus::CANCEL) {
         Console::GetInstance()->WPrintF(L"NO DATA\n");
         Console::GetInstance()->Pause();
         return 0;
     }
 
-    Console::GetInstance()->WPrintF(L"Username: %s\nPassword: %s\nHandshake: %s", result->username, result->password, result->handshake);
+    Console::GetInstance()->WPrintF(L"Username: %s\nPassword: %s\n", result->user->username.c_str(), result->user->password.c_str());
     delete result;
 
     Console::GetInstance()->Pause();
