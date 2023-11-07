@@ -89,6 +89,7 @@ enum class LoginStatus : INT_PTR {
 struct LoginInput {
     Database& database;
     int handshake;
+    int attempts;
 };
 
 struct LoginResult {
@@ -99,7 +100,9 @@ struct LoginResult {
     : user(user), result(result) { }
 };
 
-constexpr const wchar_t* databaseFile = L"users.dat";
+constexpr const wchar_t* kDatabaseFile = L"users.dat";
+constexpr const wchar_t* kAdminUsername = L"ADMIN";
+constexpr const int kAttempts = 3;
 
 bool IsPasswordValid(const std::wstring& password) {
     bool hasLatin = false;
@@ -239,7 +242,20 @@ LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 break;
             }
 
-            EndDialog(hwnd, (INT_PTR)new LoginResult(nullptr, LoginStatus::CANCEL));
+            // User was registered. Check password. 3 times
+            if (user->password != password) {
+                MessageBoxW(hwnd, L"Wrong password!", L"Warning", MB_OK | MB_ICONERROR);
+                --input->attempts;
+                // No attempts left. Exit
+                if (input->attempts <= 0) {
+                    EndDialog(hwnd, (INT_PTR)new LoginResult(nullptr, LoginStatus::CANCEL));
+                }
+
+                break;
+            }
+
+            // Password match. Authorize user
+            EndDialog(hwnd, (INT_PTR)new LoginResult(user, LoginStatus::LOGIN));
         }
 
         break;
@@ -253,26 +269,36 @@ LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
     srand(GetTickCount());
     // Open database. If doesn't exist - create
-    std::ifstream file(databaseFile, std::ios::binary);
     Database database;
-    if (!file.good()) {
-        database.users.emplace_back(L"ADMIN", L"", false, false);
-        std::ofstream newFile(databaseFile, std::ios::binary);
-        newFile << database;
-        newFile.close();
-        file.open(databaseFile, std::ios::binary);
+    {
+        std::ifstream file(kDatabaseFile, std::ios::binary);
+        if (!file.good()) {
+            database.users.emplace_back(kAdminUsername, L"", false, false);
+            std::ofstream newFile(kDatabaseFile, std::ios::binary);
+            newFile << database;
+            newFile.close();
+            file.open(kDatabaseFile, std::ios::binary);
+        }
+
+        file >> database;
+        file.close();
     }
 
-    file >> database;
     Console::GetInstance()->WPrintF(L"Username: %s\nPassword: %s\nIsBlocked: %d\nisRestrictionEnabled: %d\n",
         database.users[0].username.c_str(), database.users[0].password.c_str(), database.users[0].isBlocked ? 1 : 0, database.users[0].isRestrictionEnabled ? 1 : 0);
 
-    LoginInput loginParams = { database, rand() % 1000 };
+    LoginInput loginParams = { database, rand() % 1000, kAttempts };
     LoginResult* result = (LoginResult*)DialogBoxParamW(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), nullptr, LoginProc, (LPARAM)&loginParams);
     if (result->result == LoginStatus::CANCEL) {
         Console::GetInstance()->WPrintF(L"NO DATA\n");
         Console::GetInstance()->Pause();
         return 0;
+    }
+
+    if (result->result == LoginStatus::UPDATE) {
+        std::ofstream newFile(kDatabaseFile, std::ios::binary | std::ios::trunc);
+        newFile << database;
+        newFile.close();
     }
 
     Console::GetInstance()->WPrintF(L"Username: %s\nPassword: %s\n", result->user->username.c_str(), result->user->password.c_str());
