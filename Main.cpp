@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include <cwctype>
 
 #include "resource.h"
 #include "Console.h"
@@ -42,8 +43,8 @@ struct User {
         size_t passwordLength;
         ifs.read((char*)&usernameLength, sizeof(usernameLength));
         ifs.read((char*)&passwordLength, sizeof(passwordLength));
-        user.username.resize(usernameLength + 1);
-        user.password.resize(passwordLength + 1);
+        user.username.resize(usernameLength);
+        user.password.resize(passwordLength);
         user.username[usernameLength] = user.password[passwordLength] = L'\0';
         ifs.read((char*)&user.username[0], sizeof(wchar_t) * usernameLength);
         ifs.read((char*)&user.password[0], sizeof(wchar_t) * passwordLength);
@@ -102,6 +103,33 @@ struct LoginResult {
 
 constexpr const wchar_t* databaseFile = L"users.dat";
 
+bool IsPasswordValid(const std::wstring& password) {
+    bool hasLatin = false;
+    bool hasCyrillic = false;
+    bool hasNumbers = false;
+    for (wchar_t ch : password) {
+        if (iswalpha(ch)) {
+            if (iswascii(ch)) {
+                hasLatin = true;
+            }
+            else if (ch >= 0x0400 && ch <= 0x04FF) {
+                hasCyrillic = true;
+            }
+            else {
+                return false;
+            }
+        }
+        else if (iswdigit(ch)) {
+            hasNumbers = true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    return hasLatin && hasCyrillic && hasNumbers;
+}
+
 LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_INITDIALOG:
@@ -133,25 +161,37 @@ LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             std::wstring username;
             std::wstring password;
             std::wstring handshake;
-            username.resize(loginLength + 1);
-            password.resize(passwordLength + 1);
-            handshake.resize(handshakeLength + 1);
+            username.resize(loginLength);
+            password.resize(passwordLength);
+            handshake.resize(handshakeLength);
             GetDlgItemTextW(hwnd, IDC_EDIT1, &username[0], loginLength + 1);
             GetDlgItemTextW(hwnd, IDC_EDIT2, &password[0], passwordLength + 1);
             GetDlgItemTextW(hwnd, IDC_EDIT3, &handshake[0], handshakeLength + 1);
             // If user doesn't exist - show warning
             LoginInput* input = (LoginInput*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
-            bool userExist = false;
-            for (const User& user : input->database.users) {
-                if (username == user.username) {
-                    userExist = true;
+            User* user = nullptr;
+            for (User& currentUser : input->database.users) {
+                if (username == currentUser.username) {
+                    user = &currentUser;
                     break;
                 }
             }
 
-            if (!userExist) {
+            if (user == nullptr) {
                 MessageBoxW(hwnd, L"User with such name doesn't exist", L"Warning", MB_OK | MB_ICONERROR);
                 break;
+            }
+
+            // If user wasn't registered
+            if (user->password.empty()) {
+                // Validate if set restriction
+                if (user->isRestrictionEnabled && !IsPasswordValid(password)) {
+                    MessageBoxW(hwnd, L"Password must contain latin, cyrillic characters and numbers", L"Warning", MB_OK | MB_ICONERROR);
+                    break;
+                }
+
+                // Ask to repeat password
+
             }
 
 
