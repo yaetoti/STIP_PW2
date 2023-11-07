@@ -222,6 +222,11 @@ LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 break;
             }
 
+            if (user->isBlocked) {
+                MessageBoxW(hwnd, L"Account is blocked!", L"Warning", MB_OK | MB_ICONERROR);
+                break;
+            }
+
             // If user wasn't registered
             if (user->password.empty()) {
                 // Validate if set restriction
@@ -284,9 +289,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         file.close();
     }
 
-    Console::GetInstance()->WPrintF(L"Username: %s\nPassword: %s\nIsBlocked: %d\nisRestrictionEnabled: %d\n",
-        database.users[0].username.c_str(), database.users[0].password.c_str(), database.users[0].isBlocked ? 1 : 0, database.users[0].isRestrictionEnabled ? 1 : 0);
-
+    // Show login form
     LoginInput loginParams = { database, rand() % 1000, kAttempts };
     LoginResult* result = (LoginResult*)DialogBoxParamW(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), nullptr, LoginProc, (LPARAM)&loginParams);
     if (result->result == LoginStatus::CANCEL) {
@@ -294,7 +297,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         Console::GetInstance()->Pause();
         return 0;
     }
-
+    // Update database if needed
     if (result->result == LoginStatus::UPDATE) {
         std::ofstream newFile(kDatabaseFile, std::ios::binary | std::ios::trunc);
         newFile << database;
@@ -303,6 +306,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
     Console::GetInstance()->WPrintF(L"Username: %s\nPassword: %s\n", result->user->username.c_str(), result->user->password.c_str());
     delete result;
+
+    // Show main form
 
     Console::GetInstance()->Pause();
 	return 0;
