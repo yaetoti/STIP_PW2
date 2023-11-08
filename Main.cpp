@@ -10,6 +10,7 @@
 #include "Database.h"
 #include "LoginForm.h"
 #include "UserPanel.h"
+#include "AdminPanel.h"
 
 #pragma comment(lib, "ConsoleLib")
 
@@ -35,7 +36,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
     // Show main form
     UserPanelInput panelInput = { database, user };
-    DialogBoxParamW(hInstance, MAKEINTRESOURCE(IDD_USER_PANEL), nullptr, UserPanelProc, (LPARAM)&panelInput);
+    if (user->username == kAdminUsername) {
+        DialogBoxParamW(hInstance, MAKEINTRESOURCE(IDD_ADMIN_PANEL), nullptr, AdminPanelProc, (LPARAM)&panelInput);
+    }
+    else {
+        DialogBoxParamW(hInstance, MAKEINTRESOURCE(IDD_USER_PANEL), nullptr, UserPanelProc, (LPARAM)&panelInput);
+    }
 
 	return 0;
 }

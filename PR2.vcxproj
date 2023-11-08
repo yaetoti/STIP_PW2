@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AdminPanel.cpp" />
     <ClCompile Include="Constants.cpp" />
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="LoginForm.cpp" />
@@ -162,6 +163,7 @@
     <ResourceCompile Include="PR2.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AdminPanel.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="LoginForm.h" />

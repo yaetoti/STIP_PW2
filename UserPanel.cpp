@@ -83,7 +83,7 @@ LRESULT CALLBACK UserPanelProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
             MessageBoxW(hwnd, kAboutMessage, L"About Program", MB_ICONINFORMATION | MB_OK);
             break;
         }
-        else if (LOWORD(wParam) == ID_CHANGEUSERPASS && HIWORD(wParam) == BN_CLICKED) {
+        else if (LOWORD(wParam) == ID_USER_CHANGEPASS && HIWORD(wParam) == BN_CLICKED) {
             // Change password. Update database
             const UserPanelInput* input = (const UserPanelInput*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
             bool status = DialogBoxParamW(GetModuleHandleW(nullptr), MAKEINTRESOURCE(IDD_CHANGEPASSWORD), hwnd, ChangePasswordProc, (LPARAM)input->user);
