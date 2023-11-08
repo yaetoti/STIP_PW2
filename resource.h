@@ -10,6 +10,7 @@
 #define IDR_MENU1                       107
 #define IDD_CHANGEPASSWORD              108
 #define IDD_ADMIN_PANEL                 110
+#define IDD_DIALOG_USER_PROFILE         112
 #define IDC_EDIT1                       1001
 #define IDC_EDIT2                       1002
 #define IDC_EDIT3                       1003
@@ -22,17 +23,17 @@
 #define IDC_REPEATNEWPASSWORD           1011
 #define ID_CHANGEPASS_OK                1012
 #define IDC_LIST_USERS                  1013
-#define ID_CHANGEPASSWORD               1014
-#define ID_HELP_ABOUTPROGRAM            40001
+#define IDC_CHECK_BLOCKED               1015
+#define IDC_CHECK_RESTRICTION           1016
 #define ID_MENU_ABOUTPROGRAM            40002
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        112
+#define _APS_NEXT_RESOURCE_VALUE        114
 #define _APS_NEXT_COMMAND_VALUE         40003
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1017
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
