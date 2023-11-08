@@ -156,6 +156,7 @@
     <ClCompile Include="LoginForm.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="User.cpp" />
+    <ClCompile Include="UserPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PR2.rc" />
@@ -166,6 +167,7 @@
     <ClInclude Include="LoginForm.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="User.h" />
+    <ClInclude Include="UserPanel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -14,7 +14,7 @@ Database::Database(const wchar_t* filename)
     }
 }
 
-void Database::Save() {
+void Database::Save() const {
     std::ofstream newFile(filename, std::ios::binary | std::ios::trunc);
     newFile << *this;
 }

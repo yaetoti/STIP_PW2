@@ -9,6 +9,7 @@
 #include "Constants.h"
 #include "Database.h"
 #include "LoginForm.h"
+#include "UserPanel.h"
 
 #pragma comment(lib, "ConsoleLib")
 
@@ -21,8 +22,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         LoginInput loginParams = { database, rand() % 1000, kAttempts };
         std::unique_ptr<LoginResult> result((LoginResult*)DialogBoxParamW(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), nullptr, LoginProc, (LPARAM)&loginParams));
         if (result->result == LoginStatus::CANCEL) {
-            Console::GetInstance()->WPrintF(L"NO DATA\n");
-            Console::GetInstance()->Pause();
             return 0;
         }
 
@@ -34,10 +33,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         user = result->user;
     }
 
-    Console::GetInstance()->WPrintF(L"Username: %s\nPassword: %s\n", user->username.c_str(), user->password.c_str());
-
     // Show main form
+    UserPanelInput panelInput = { database, user };
+    DialogBoxParamW(hInstance, MAKEINTRESOURCE(IDD_USER_PANEL), nullptr, UserPanelProc, (LPARAM)&panelInput);
 
-    Console::GetInstance()->Pause();
 	return 0;
 }
