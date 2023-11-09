@@ -148,8 +148,6 @@ LRESULT CALLBACK AdminPanelProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM l
             break;
         }
 
-        // TODO
-        // Add handshake handling
         else if (LOWORD(wParam) == IDC_LIST_USERS && HIWORD(wParam) == LBN_DBLCLK) {
             HWND hListBox = GetDlgItem(hwnd, IDC_LIST_USERS);
             LRESULT selectedIndex = SendMessageW(hListBox, LB_GETCURSEL, 0, 0);

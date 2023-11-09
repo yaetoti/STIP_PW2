@@ -28,3 +28,7 @@ bool IsPasswordValid(const std::wstring& password) {
 
     return hasLatin && hasCyrillic && hasNumbers;
 }
+
+bool IsHandshakeValid(int input, int output) {
+    return output == (input * input + 3);
+}

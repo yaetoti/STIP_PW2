@@ -8,3 +8,4 @@ constexpr const wchar_t* kAboutMessage = L"Made by Kostin A.S. student of CS-920
 constexpr const int kAttempts = 3;
 
 bool IsPasswordValid(const std::wstring& password);
+bool IsHandshakeValid(int input, int output);

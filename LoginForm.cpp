@@ -99,6 +99,11 @@ LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 break;
             }
 
+            if (!IsHandshakeValid(input->handshake, std::stoi(handshake))) {
+                MessageBoxW(hwnd, L"Wrong handshake!", L"Warning", MB_OK | MB_ICONERROR);
+                break;
+            }
+
             // If user wasn't registered
             if (user->password.empty()) {
                 // Validate if set restriction
