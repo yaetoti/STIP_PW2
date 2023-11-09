@@ -10,7 +10,7 @@ Database::Database(const wchar_t* filename)
         file >> *this;
     }
     else {
-        users.emplace_back(kAdminUsername, L"", false, false);
+        users.emplace_back(std::make_unique<User>(kAdminUsername, L"", false, false));
     }
 }
 
@@ -24,7 +24,7 @@ std::ofstream& operator<<(std::ofstream& ofs, const Database& database) {
     size_t size = database.users.size();
     ofs.write((const char*)&size, sizeof(size));
     for (size_t i = 0; i < size; ++i) {
-        ofs << database.users[i];
+        ofs << *database.users[i];
     }
 
     return ofs;
@@ -34,8 +34,11 @@ std::ifstream& operator>>(std::ifstream& ifs, Database& database) {
     size_t size;
     ifs.read((char*)&size, sizeof(size));
     database.users.resize(size);
+    User* user;
     for (size_t i = 0; i < size; ++i) {
-        ifs >> database.users[i];
+        user = new User();
+        ifs >> *user;
+        database.users[i].reset(user);
     }
 
     return ifs;

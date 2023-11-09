@@ -8,6 +8,13 @@ User::User()
 User::User(const wchar_t* username, const wchar_t* password, bool isBlocked, bool isRestrictionEnabled)
     : username(username), password(password), isBlocked(isBlocked), isRestrictionEnabled(isRestrictionEnabled) {
 }
+
+User::User(User&& other) noexcept
+    : username(std::move(other.username)), password(std::move(other.password)), isBlocked(other.isBlocked), isRestrictionEnabled(other.isRestrictionEnabled) {
+    other.isBlocked = false;
+    other.isRestrictionEnabled = false;
+}
+
 std::ofstream& operator<<(std::ofstream& ofs, const User& user) {
     // Format: [usernameLength][passwordLength][username][password][isBlocked][isRestrictionEnabled]
     size_t usernameLength = user.username.length();

@@ -48,9 +48,7 @@ LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
     switch (message) {
     case WM_INITDIALOG:
     {
-        // Save input data
         SetWindowLongPtrW(hwnd, GWLP_USERDATA, lParam);
-        // Update handshake text
         HWND hHandshake = GetDlgItem(hwnd, IDC_HANDSHAKE);
         std::wstring text = L"Handshake: " + std::to_wstring(((const LoginInput*)lParam)->handshake);
         SetWindowTextW(hHandshake, text.c_str());
@@ -84,9 +82,9 @@ LRESULT CALLBACK LoginProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             // If user doesn't exist - show warning
             LoginInput* input = (LoginInput*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
             User* user = nullptr;
-            for (User& currentUser : input->database.users) {
-                if (username == currentUser.username) {
-                    user = &currentUser;
+            for (const std::unique_ptr<User>& currentUser : input->database.users) {
+                if (username == currentUser->username) {
+                    user = currentUser.get();
                     break;
                 }
             }

@@ -2,9 +2,13 @@
 
 #include <string>
 
+struct User;
+
 struct User {
     User();
     User(const wchar_t* username, const wchar_t* password, bool isBlocked, bool isRestrictionEnabled);
+    User(const User& other) = default;
+    User(User&& other) noexcept;
 
     friend std::ofstream& operator<<(std::ofstream& ofs, const User& user);
     friend std::ifstream& operator>>(std::ifstream& ifs, User& user);
