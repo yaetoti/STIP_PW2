@@ -71,20 +71,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>D:\Projects\WinAPI\ConsoleLib\x64\Release;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\Projects\WinAPI\ConsoleLib;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\yaetoti\Desktop\ПЗЗИ\ПР 1-2\STIP_PW2\ConsoleLib;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>D:\Projects\WinAPI\ConsoleLib\x64\Release;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\Projects\WinAPI\ConsoleLib;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\yaetoti\Desktop\ПЗЗИ\ПР 1-2\STIP_PW2\ConsoleLib;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>D:\Projects\WinAPI\ConsoleLib\x64\Release;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\Projects\WinAPI\ConsoleLib;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\yaetoti\Desktop\ПЗЗИ\ПР 1-2\STIP_PW2\ConsoleLib;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>D:\Projects\WinAPI\ConsoleLib\x64\Release;$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\Projects\WinAPI\ConsoleLib;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\yaetoti\Desktop\ПЗЗИ\ПР 1-2\STIP_PW2\ConsoleLib;%(AdditionalIncludeDirectories);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -170,6 +170,11 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="UserPanel.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="ConsoleLib\ConsoleLib.vcxproj">
+      <Project>{025a1406-606d-4a21-9700-53cf7f4641bf}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

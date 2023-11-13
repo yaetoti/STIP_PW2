@@ -1,0 +1,3 @@
+[submodule "ConsoleLib"]
+	path = ConsoleLib
+	url = https://github.com/yaetoti/ConsoleLib.git
